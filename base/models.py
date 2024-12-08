@@ -2,15 +2,21 @@ from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
-import uuid
-from datetime import datetime
 from ckeditor.fields import RichTextField
 from django.urls import reverse
-
+import uuid
+from datetime import datetime
 
 User = get_user_model()
 
 # Create your models here.
+class FollowersCount(models.Model):
+    follower = models.CharField(max_length=100)
+    user = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.user
+
 class Profile(models.Model):
     # user = models.ForeignKey(User, on_delete=models.CASCADE)
     user=models.OneToOneField(User,null=True,on_delete=models.CASCADE)
@@ -26,12 +32,17 @@ class Profile(models.Model):
     def get_absolute_url(self):
         return reverse('home')
 
-class FollowersCount(models.Model):
-    follower = models.CharField(max_length=100)
-    user = models.CharField(max_length=100)
+class Comment(models.Model):
+    post=models.ForeignKey(Post,related_name="comments",on_delete=models.CASCADE)
+    name=models.CharField(max_length=255)
+    body=models.TextField()
+    date_added=models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.user
+        return '%s - %s' % (self.post.title,self.name)
+
+    def get_absolute_url(self):
+        return reverse('home')
 
 class Post(models.Model):
     title=models.CharField(max_length=255)
@@ -46,24 +57,12 @@ class Post(models.Model):
     def __str__(self):
         return self.title + " | " + str(self.author)
 
-    def get_absolute_url(self):
-        return reverse('home')
-
     def get_owner_pp(self):
         return self.author.profileimg.url
 
     def profileid(self):
         return self.author.user.id
-
-class Comment(models.Model):
-    post=models.ForeignKey(Post,related_name="comments",on_delete=models.CASCADE)
-    name=models.CharField(max_length=255)
-    body=models.TextField()
-    date_added=models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return '%s - %s' % (self.post.title,self.name)
-
+    
     def get_absolute_url(self):
         return reverse('home')
 
