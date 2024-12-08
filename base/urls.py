@@ -12,6 +12,9 @@ urlpatterns = [
     path('logout/', views.logout,name='logout'),
     path('signup/', views.signup,name='signup'),
     path('<int:pk>/edit_profile_page/',EditProfilePageView.as_view(),name='edit_profile_page'),
+    path('post/edit/<int:pk>',UpdatePostView.as_view(),name="update_post"),
+    path('search',views.search,name='search'),
+    path('follow',views.follow,name='follow'),
     path('<int:pk>/profile/',ShowProfilePageView.as_view(),name='show_profile_page'),
     path('create_profile_page/',CreateProfilePageView.as_view(),name='create_profile_page'),
     path('add_post/',AddPostView.as_view(),name="add_post"),
@@ -21,9 +24,6 @@ urlpatterns = [
     path('post/<int:pk>/comment/',AddCommentView.as_view(),name='add_comment'),
     path('like-post',views.like_post,name='like-post'),
     path('post/<int:pk>/remove',DeletePostView.as_view(),name="delete_post"),
-    path('post/edit/<int:pk>',UpdatePostView.as_view(),name="update_post"),
-    path('search',views.search,name='search'),
-    path('follow',views.follow,name='follow'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
