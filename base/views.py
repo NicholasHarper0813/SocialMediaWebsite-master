@@ -1,4 +1,3 @@
-from multiprocessing import context
 from django.shortcuts import render,HttpResponse,redirect,get_object_or_404
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout,update_session_auth_hash
 from django.contrib import messages
@@ -10,16 +9,16 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.views.generic import DetailView,CreateView
 from django.contrib.auth.views import PasswordChangeView
-from .models import *
 from django.urls import reverse_lazy,reverse
 from django.views import generic
 from django.views.generic import ListView,DetailView,CreateView,UpdateView,DeleteView
-from .forms import *
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
+from .models import *
+from .forms import *
 from itertools import chain
+from multiprocessing import context
 import random
-
 
 # Create your views here.
 @login_required(login_url='signup')
@@ -70,11 +69,11 @@ class ShowProfilePageView(DetailView):
 
         num_posts=len(logged_in_user_posts)
         context["page_user"]=page_user
-        context['logged_in_user_posts']=logged_in_user_posts
         context['num_posts']=num_posts
         context['button_text']=button_text
         context['user_followers']=user_followers
         context['user_following']=user_following
+        context['logged_in_user_posts']=logged_in_user_posts
         return context
     
 def login(request):
@@ -141,13 +140,13 @@ class FriendView(ListView):
         page_user=get_object_or_404(Profile)
         context["page_user"]=page_user
         return context
-
-
-class AddPostView(CreateView):
-    model = Post
-    form_class = PostForm
-    template_name = 'base/add_post.html'
-
+        
+class EditProfilePageView(generic.UpdateView):
+    model = Profile
+    form_class=EditProfileNewForm
+    template_name='base/edit_profile_page.html'
+    success_url=reverse_lazy('home')
+    
 class CreateProfilePageView(CreateView):
     model = Profile
     form_class=ProfilePageForm
@@ -156,13 +155,11 @@ class CreateProfilePageView(CreateView):
     def form_valid(self,form):
         form.instance.user=self.request.user
         return super().form_valid(form)
-
-class EditProfilePageView(generic.UpdateView):
-    model = Profile
-    form_class=EditProfileNewForm
-    template_name='base/edit_profile_page.html'
-    success_url=reverse_lazy('home')
-
+    
+class AddPostView(CreateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'base/add_post.html'
 
 class PasswordsChangeView(PasswordChangeView):
        form_class= PasswordChangingForm
@@ -229,11 +226,6 @@ def search(request):
         username_profile_list = list(chain(*username_profile_list))
     return render(request, 'base/search.html', { 'user_profile':user_profile,'username_profile_list': username_profile_list,'username_profile':username_profile})
 
-class UpdatePostView(UpdateView):
-    model = Post
-    form_class=EditForm
-    template_name = 'base/update_post.html'
-
 @login_required(login_url='signup')
 def follow(request):
     if request.method == 'POST':
@@ -250,10 +242,8 @@ def follow(request):
             return redirect('/')
     else:
         return redirect('/')
-
-
-
-
-
-
-
+        
+class UpdatePostView(UpdateView):
+    model = Post
+    form_class=EditForm
+    template_name = 'base/update_post.html'
